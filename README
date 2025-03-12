@@ -1,0 +1,43 @@
+# Customer Orders Data Pipeline Challenge
+
+### Prerequisites
+- Install `pyenv` and `pyenv-virtualenv` (see [pyenv docs](https://github.com/pyenv/pyenv) for details), or manage your own virtual environment
+- PostgreSQL installed and running locally
+
+### Environment Setup
+```bash
+pyenv install 3.10.12
+# create virtual env (in directory)
+pyenv virtualenv 3.10.12 challenge
+# link venv to project directory
+pyenv local challenge
+
+python --version to confirm
+
+# install reqs
+pip install -r requirements.txt
+
+# link kernel to jupyter lab so you can select it as a kernel option
+python -m ipykernel install --user --name challenge --display-name "Programming Challenge (3.10)"
+```
+
+- Create local Postgres
+
+```bash
+# In Ubuntu (details will be different for other OS's)
+sudo apt install postgresql postgresql-contrib
+# verify
+psql --version
+# check if local db is running
+sudo systemctl status postgresql
+# if not
+sudo systemctl start postgresql
+# sudo systemctl stop postgresql (to stop later)
+
+# Create a user / database
+sudo -i -u postgres
+psql
+CREATE ROLE brett WITH LOGIN PASSWORD 'mypassword';
+ALTER ROLE brett CREATEDB;
+CREATE DATABASE amazon_products_db OWNER brett;
+```

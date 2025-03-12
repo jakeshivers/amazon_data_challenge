@@ -1,0 +1,5 @@
+SQLAlchemy==1.4.50
+pandas==1.5.3
+httpx==0.27.0
+psycopg2-binary==2.9.9  # PostgreSQL driver for SQLAlchemy
+jupyterlab==4.3.5
