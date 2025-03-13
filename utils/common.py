@@ -5,7 +5,7 @@ from io import BytesIO
 import httpx
 import pandas as pd
 from orm.amazon_products import session_scope
-from sqlalchemy import Table
+from sqlalchemy import Table, inspect
 
 
 def download_file(url: str, download_path: Path) -> None:
@@ -89,3 +89,4 @@ def df_to_dict_list(df: pd.DataFrame):
                 record[col] = record[col].to_pydatetime() if pd.notna(record[col]) else None
 
     return records
+

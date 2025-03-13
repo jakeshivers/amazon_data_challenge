@@ -5,21 +5,17 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 
 # Database setup
-# Ensure you use the correct username and password
 DATABASE_URL = "postgresql://brett:mypassword@localhost:5432/amazon_products_db"
-                
-# Create the database engine
 engine = create_engine(DATABASE_URL)
 
 # Ensure that the session factory is correctly bound to the engine
 SessionLocal = sessionmaker(bind=engine)
 Session = scoped_session(SessionLocal)
 
-
 @contextmanager
 def session_scope():
     """Provide a transactional scope around a series of operations."""
-    session = SessionLocal()
+    session = Session()
     try:
         print(f"Session connected as: {engine.url}")  # Debugging info
         yield session
@@ -30,24 +26,14 @@ def session_scope():
         raise
     finally:
         session.close()
-
+        Session.remove()  # Ensure cleanup for scoped_session
 
 Base = declarative_base()
 
-class Product(Base):
-    __tablename__ = "product"
-    id = Column(Integer, primary_key=True, autoincrement=True)  # Auto-incrementing ID
-    product_id = Column(String(255), unique=True, nullable=False)
-    product_name = Column(String(500), nullable=False)
-    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
-
-    scalars = relationship("ProductScalar", backref="product", cascade="all, delete-orphan")
-
-
 class ProductScalars(Base):
-    __tablename__ = "product_scalar"
-    id = Column(Integer, primary_key=True, autoincrement=True)  # Auto-incrementing ID
-    product_id = Column(String(255), ForeignKey("product.product_id"), nullable=False)
+    __tablename__ = "product_scalars"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    product_id = Column(String(255), ForeignKey("product.product_id", ondelete="CASCADE"), nullable=False)
     category = Column(String(255), nullable=False)
     rating = Column(Numeric(3, 2), nullable=False)
     rating_count = Column(Integer, nullable=False)
@@ -58,3 +44,15 @@ class ProductScalars(Base):
         CheckConstraint("rating_count >= 0", name="check_rating_count"),
     )
 
+class Products(Base):
+    __tablename__ = "products"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    product_id = Column(String(255), unique=True, nullable=False)
+    product_name = Column(String(500), nullable=False)
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+    scalars = relationship("ProductScalars", backref="products", cascade="all, delete")  # Full cascade
+
+# Create tables if they don't exist
+Base.metadata.create_all(engine)
+print("Tables created successfully!")
